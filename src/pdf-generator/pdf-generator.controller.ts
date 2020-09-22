@@ -5,8 +5,7 @@ import { PdfGeneratorService } from './pdf-generator.service';
 export class PdfGeneratorController {
   constructor(
     private pdfService: PdfGeneratorService
-  ) {
-  }
+  ) {}
 
   @Get()
   generatePDF() {

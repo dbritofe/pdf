@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 // import { PdfConfigService } from './pdf-config/pdf-config.service';
 // import { PdfGeneratorController } from './pdf-generator/pdf-generator.controller';
 import { PdfGeneratorModule } from './pdf-generator/pdf-generator.module';
-// import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -13,12 +13,12 @@ import { PdfGeneratorModule } from './pdf-generator/pdf-generator.module';
     //   useClass: PdfConfigService
     // }),
     PdfGeneratorModule,
-    // TypeOrmModule.forRoot({
-    //   type: 'sqlite',
-    //   database: 'db',
-    //   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    //   synchronize: true,
-    // })
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: '../db',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    })
   ],
   controllers: [AppController],
   providers: [AppService],
