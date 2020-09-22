@@ -1,0 +1,16 @@
+import { Module } from '@nestjs/common';
+import { PdfGeneratorController } from './pdf-generator.controller';
+// import { TypeOrmModule } from '@nestjs/typeorm';
+// import { Operation } from '../models/operation.entity';
+import { PdfGeneratorService } from './pdf-generator.service';
+
+@Module({
+  imports: [
+    // TypeOrmModule.forFeature([Operation])
+  ],
+  controllers: [
+    PdfGeneratorController
+  ],
+  providers: [PdfGeneratorService]
+})
+export class PdfGeneratorModule {}
