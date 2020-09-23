@@ -2,9 +2,17 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as PdfPrinter from 'pdfmake';
 import { v4 as uuidv4 } from 'uuid';
+import { OperationsService } from '../operations/operations.service';
+import { Operation } from '../models/operation.entity';
 
 @Injectable()
 export class PdfGeneratorService {
+  private operationsList: any[] = [];
+
+  constructor (
+    private operationsService: OperationsService
+  ) {}
+
   generatePdf() {
     const fonts = {
       Helvetica: {
@@ -25,27 +33,24 @@ export class PdfGeneratorService {
           style: 'header'
         },
       ],
+      footer: function(currentPage, pageCount) {
+        return [
+          {
+            text: currentPage.toString() + ' of ' + pageCount,
+            style: 'footer'
+          }
+        ];
+      },
       content: [
         { text: 'Last Trades', style: 'title' },
-        // { image: 'https://ctrading.io/wp-content/uploads/2020/05/logohorizontalweb-e1589380697796.png' },
         {
           layout: 'lightHorizontalLines', // optional
           table: {
             headerRows: 1,
-            widths: [ '*', 'auto', 100, '*', '*' ],
-
-            body: [
-              [ 'Exchange', 'Market', 'Amount', 'Price', 'Finished Date' ],
-              [ 'Binance', 'DASH-BTC', '0,03', '0,007381 DASH', '2020-09-08 11:29:29' ],
-              [ 'Binance', 'BCH-BTC', '0,03', '0,02219 BCH', '2020-09-08 11:22:23' ],
-              [ 'Binance', 'NPXS-ETH', '45.455,546', '0,00000043 NPXS', '2020-09-07 10:02:35' ],
-              [ 'HitBTC', 'ADA-BTC', '10', '0,00000885 ADA', '2020-09-07 09:47:14' ],
-              [ 'Binance', 'GNT-BTC', '20', '0,00001102 GNT', '2020-09-07 09:27:52' ]
-            ],
+            widths: [ '*', 'auto', 100],
+            body: this.operationsList
           },
         },
-        // {text: 'google', link: 'http://google.com', pageBreak: 'before',},
-        // { qr: 'text in QR', foreground: 'green', background: 'white' },
       ],
       defaultStyle: {
         font: 'Helvetica',
@@ -56,6 +61,9 @@ export class PdfGeneratorService {
           alignment: 'right',
           margin: 20
         },
+        footer: {
+          alignment: 'center'
+        },
         title: {
           fontSize: 15,
           margin: [0, 10, 0, 20]
@@ -63,34 +71,22 @@ export class PdfGeneratorService {
       }
     };
 
-    const tableLayouts = {
-      exampleLayout: {
-        hLineWidth: function (i, node) {
-          if (i === 0 || i === node.table.body.length) {
-            return 0;
-          }
-          return (i === node.table.headerRows) ? 2 : 1;
-        },
-        vLineWidth: function (i) {
-          return 0;
-        },
-        hLineColor: function (i) {
-          return i === 1 ? 'black' : '#aaa';
-        },
-        paddingLeft: function (i) {
-          return i === 0 ? 0 : 8;
-        },
-        paddingRight: function (i, node) {
-          return (i === node.table.widths.length - 1) ? 0 : 8;
-        }
-      }
-    };
-
-    // const options = {}
-    let file_name = './src/pdfs/PDF' + uuidv4() + '.pdf';
-    const pdfDoc = printer.createPdfKitDocument(docDefinition, {tableLayouts: tableLayouts});
+    const file_name = './src/pdfs/PDF' + uuidv4() + '.pdf';
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
     pdfDoc.pipe(fs.createWriteStream(file_name));
     pdfDoc.end();
     return {'file_name': file_name};
+  }
+
+  getOperationsData() {
+    this.operationsList = [[ 'Exchange', 'Market', 'Amount' ]];
+    this.operationsService.findAll().then((response: Operation[]) => {
+      response.forEach(_operation => {
+        this.operationsList = [...this.operationsList, [
+          _operation.exchange, _operation.market, _operation.amount
+        ]];
+      });
+      this.generatePdf();
+    });
   }
 }

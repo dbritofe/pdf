@@ -9,6 +9,6 @@ export class PdfGeneratorController {
 
   @Get()
   generatePDF() {
-    this.pdfService.generatePdf();
+    this.pdfService.getOperationsData();
   }
 }

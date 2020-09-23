@@ -1,8 +1,6 @@
-import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('operations')
-// @Index(['title'])
-// export class Operation extends BaseEntity {
 export class Operation {
   @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
